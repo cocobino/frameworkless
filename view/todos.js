@@ -1,4 +1,4 @@
-let template;
+let template
 
 const createNewTodoNode = () => {
     if (!template) {
@@ -11,7 +11,7 @@ const createNewTodoNode = () => {
         .cloneNode(true)
 }
 
-const getTodoElement = todo => {
+const getTodoElement = (todo, index, events) => {
     const {
         text,
         completed
@@ -23,23 +23,39 @@ const getTodoElement = todo => {
     element.querySelector('label').textContent = text
 
     if (completed) {
-        element
-            .classList
-            .add('completed')
-
+        element.classList.add('completed')
         element
             .querySelector('input.toggle')
             .checked = true
     }
 
+    const handler = e => events.deleteItem(index)
+
+    element
+        .querySelector('button.destroy')
+        .addEventListener('click', handler)
+
     return element
 }
 
-export default (targetElement, {todos}) => {
-    const newTodoList = targetElement.cloneNode(true);
-    const todosElements = todos
-        .map(getTodoElement)
-        .join('');
-    newTodoList.innerHTML = todosElements;
-    return newTodoList;
+export default (targetElement, state, events) => {
+    const { todos } = state
+    const { deleteItem } = events
+    const newTodoList = targetElement.cloneNode(true)
+
+    newTodoList.innerHTML = ''
+
+    todos
+        .map((todo, index) => getTodoElement(todo, index))
+        .forEach(element => {
+            newTodoList.appendChild(element)
+        })
+
+    newTodoList.addEventListener('click', e => {
+        if (e.target.matches('button.destroy')) {
+            deleteItem(e.target.dataset.index)
+        }
+    })
+
+    return newTodoList
 }

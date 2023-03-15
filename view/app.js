@@ -1,20 +1,34 @@
-import todosView from './todos.js'
-import counterView from './counter.js'
-import filtersView from './filter.js'
+let template
 
-export default (targetElement, state) => {
-    const element = targetElement.cloneNode(true)
+const getTemplate = () => {
+    if (!template) {
+        template = document.getElementById('todo-app')
+    }
 
-    const list = element
-        .querySelector('.todo-list')
-    const counter = element
-        .querySelector('.todo-count')
-    const filters = element
-        .querySelector('.filters')
+    return template
+        .content
+        .firstElementChild
+        .cloneNode(true)
+}
 
-    list.replaceWith(todosView(list, state))
-    counter.replaceWith(counterView(counter, state))
-    filters.replaceWith(filtersView(filters, state))
+const addEvents = (targetElement, events) => {
+    targetElement
+        .querySelector('.new-todo')
+        .addEventListener('keypress', e => {
+            if (e.key === 'Enter') {
+                events.addItem(e.target.value)
+                e.target.value = ''
+            }
+        })
+}
 
-    return element
+export default (targetElement, state, events) => {
+    const newApp = targetElement.cloneNode(true)
+
+    newApp.innerHTML = ''
+    newApp.appendChild(getTemplate())
+
+    addEvents(newApp, events)
+
+    return newApp;
 }
